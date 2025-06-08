@@ -16,21 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework import routers
-from rest_framework_nested.routers import NestedDefaultRouter
-from .views import ConversationViewSet, MessageViewSet
-
-router = routers.DefaultRouter()
-router.register(r'conversations', ConversationViewSet, basename='conversation')
-router.register(r'messages', MessageViewSet, basename='message')
-
-# Example of using NestedDefaultRouter for messages under conversations
-nested_router = NestedDefaultRouter(router, r'conversations', lookup='conversation')
-nested_router.register(r'messages', MessageViewSet, basename='conversation-messages')
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('chats.urls')),
+    path('api-auth/', include('rest_framework.urls')),  # <-- Add this line
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/chats/', include('messaging_app.chats.urls')),  # Example chats endpoint
 ]
-
-urlpatterns += router.urls + nested_router.urls
+# The above code sets up the URL routing for the messaging application.
+# It includes the admin interface and the API endpoints defined in the 'chats' app.
